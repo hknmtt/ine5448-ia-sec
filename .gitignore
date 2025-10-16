@@ -1,0 +1,6 @@
+.env
+venv
+meili_data
+__pycache__
+.index_state.json
+data/
