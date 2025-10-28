@@ -1,0 +1,37 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.16.0
+    container_name: meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: "development"
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_HTTP_ADDR: "0.0.0.0:7700"
+    ports:
+      - "7700:7700"
+    expose:
+      - "7700"
+    volumes:
+      - ./meili_data:/meili_data
+    networks:
+      - rede
+  # chat:
+  #   build: .
+  #   container_name: chat_container
+  #   restart: unless-stopped
+  #   environment:
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
+  #     MEILI_URL: ${MEILI_URL}
+  #     MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+  #   ports:
+  #     - "8501:8501"
+  #   depends_on:
+  #     - meilisearch
+  #   networks:
+  #     - rede
+
+networks:
+  rede:
+    driver: bridge
+    
+
