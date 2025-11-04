@@ -9,29 +9,48 @@ services:
       MEILI_HTTP_ADDR: "0.0.0.0:7700"
     ports:
       - "7700:7700"
-    expose:
-      - "7700"
     volumes:
       - ./meili_data:/meili_data
     networks:
       - rede
-  # chat:
-  #   build: .
-  #   container_name: chat_container
-  #   restart: unless-stopped
-  #   environment:
-  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
-  #     MEILI_URL: ${MEILI_URL}
-  #     MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
-  #   ports:
-  #     - "8501:8501"
-  #   depends_on:
-  #     - meilisearch
-  #   networks:
-  #     - rede
+
+  chat:
+    image: registry.mth.sh/chatbot:latest
+    container_name: chat_container
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    ports:
+      - "8501:8501"
+    command: >
+      streamlit run src/app/app_chat.py
+      --server.port=8501
+      --server.address=0.0.0.0
+    depends_on:
+      - meilisearch
+    networks:
+      - rede
+
+  pipeline:
+    # build:
+    #   context: . 
+    image: registry.mth.sh/chatbot:latest
+    container_name: pipeline_container
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    command: python pipeline.py 
+    depends_on:
+      - meilisearch
+    networks:
+      - rede
+    volumes:
+      - ./data:/app/data 
+    profiles: ["manual"]
 
 networks:
   rede:
     driver: bridge
-    
-
